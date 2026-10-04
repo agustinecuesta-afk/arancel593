@@ -1,0 +1,9 @@
+.git
+.firebase
+.agents
+target
+importacioncosteo
+.settings
+.classpath
+.project
+*.log

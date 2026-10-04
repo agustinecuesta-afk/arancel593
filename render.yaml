@@ -1,0 +1,25 @@
+services:
+  - type: web
+    name: importacion-costos-api
+    runtime: docker
+    plan: free
+    region: ohio
+    autoDeploy: false
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: SPRING_PROFILES_ACTIVE
+        value: prod
+      - key: FIREBASE_PROJECT_ID
+        value: arancel593
+      - key: FIREBASE_AUTH_ALLOWED_EMAILS
+        value: agustincuesta1975@gmail.com
+      - key: APP_WEB_ALLOWED_ORIGINS
+        value: https://arancel593.web.app,https://arancel593.firebaseapp.com
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JDBC_DATABASE_URL
+        sync: false
+      - key: FIREBASE_SERVICE_ACCOUNT_JSON
+        sync: false

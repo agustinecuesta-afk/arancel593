@@ -1,6 +1,5 @@
 package com.importacion.backend.models.entities;
 
-
 import javax.persistence.Basic;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,62 +7,60 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name="aereo")
+@Table(name = "aereo")
 public class aereo {
 
-	
-	@Id
-	@GeneratedValue(strategy= GenerationType.IDENTITY )
-	@Basic(optional=false)
-	
-	@Column(name="idaereo")
-	private Integer  idaereo;
-	
-	@Column(name="peso")
-	private Integer peso;
-	
-	@Column(name="precio")
-	private Integer precio;
-	
-	
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Basic(optional = false)
+    @Column(name = "idaereo")
+    private Integer idaereo;
 
-	public aereo() {
-		super();
-	}
+    @NotNull(message = "El peso es obligatorio")
+    @Min(value = 0, message = "El peso no puede ser negativo")
+    @Column(name = "peso", nullable = false)
+    private Integer peso;
 
-	public aereo(Integer idaereo) {
-		super();
-		this.idaereo = idaereo;
-	}
+    @NotNull(message = "El precio es obligatorio")
+    @Min(value = 0, message = "El precio no puede ser negativo")
+    @Column(name = "precio", nullable = false)
+    private Integer precio;
 
-	public Integer getIdaereo() {
-		return idaereo;
-	}
+    public aereo() {
+        super();
+    }
 
-	public void setIdaereo(Integer idaereo) {
-		this.idaereo = idaereo;
-	}
+    public aereo(Integer idaereo) {
+        super();
+        this.idaereo = idaereo;
+    }
 
-	public Integer getPeso() {
-		return peso;
-	}
+    public Integer getIdaereo() {
+        return idaereo;
+    }
 
-	public void setPeso(Integer peso) {
-		this.peso = peso;
-	}
+    public void setIdaereo(Integer idaereo) {
+        this.idaereo = idaereo;
+    }
 
-	public Integer getPrecio() {
-		return precio;
-	}
+    public Integer getPeso() {
+        return peso;
+    }
 
-	public void setPrecio(Integer precio) {
-		this.precio = precio;
-	}
-	
-	
-	
-	
+    public void setPeso(Integer peso) {
+        this.peso = peso;
+    }
+
+    public Integer getPrecio() {
+        return precio;
+    }
+
+    public void setPrecio(Integer precio) {
+        this.precio = precio;
+    }
 }
 
