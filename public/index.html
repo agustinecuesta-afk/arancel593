@@ -6,8 +6,6 @@
     <meta name="theme-color" content="#102b26">
     <meta name="description" content="Panel de costos de importación y consulta del arancel aduanero.">
     <title>Importa | Control de importaciones</title>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
     <script src="/config.js"></script>
     <style>
       :root {
@@ -34,25 +32,6 @@
       button, input { font: inherit; }
       button { cursor: pointer; }
       .shell { min-height: 100vh; }
-      .login-screen {
-        display: grid;
-        min-height: 100vh;
-        place-items: center;
-        padding: 24px;
-        background:
-          radial-gradient(ellipse at 80% 15%, rgba(105, 165, 128, .12), transparent 34%),
-          var(--canvas);
-      }
-      .login-card { width: min(420px, 100%); padding: 34px; border: 1px solid var(--line); border-radius: 15px; background: white; box-shadow: var(--shadow); }
-      .login-card .brand { padding: 0; }
-      .login-card h1 { margin-top: 30px; font-size: 25px; }
-      .login-card .subtitle { margin: 8px 0 23px; line-height: 1.6; }
-      .login-form { display: grid; gap: 15px; }
-      .login-form .button { width: 100%; margin-top: 3px; }
-      .login-footnote { margin: 17px 0 0; color: var(--muted); font-size: 11px; line-height: 1.6; text-align: center; }
-      .login-notice { margin-top: 15px; }
-      .verify-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-      .topbar-right .account-email { max-width: 220px; overflow: hidden; color: var(--muted); font-size: 11px; text-overflow: ellipsis; white-space: nowrap; }
       .sidebar {
         position: fixed;
         inset: 0 auto 0 0;
@@ -205,8 +184,7 @@
         .hero-aside { margin-right: 2%; }
       }
       @media (max-width: 680px) {
-        .login-card { padding: 26px 22px; }
-        .sidebar { position: static; width: auto; min-height: auto; flex-direction: row; align-items: center; padding: 10px 15px; }
+                .sidebar { position: static; width: auto; min-height: auto; flex-direction: row; align-items: center; padding: 10px 15px; }
         .brand { padding: 0; }
         .brand-mark { width: 34px; height: 34px; }
         .brand-caption, .nav-label, .sidebar-bottom { display: none; }
@@ -234,38 +212,7 @@
     </style>
   </head>
   <body>
-    <main id="login-screen" class="login-screen">
-      <section class="login-card" aria-labelledby="login-title">
-        <div class="brand">
-          <div class="brand-mark" aria-hidden="true">I</div>
-          <div>
-            <div class="brand-name">importa</div>
-            <div class="brand-caption">gestión de costos</div>
-          </div>
-        </div>
-        <h1 id="login-title">Inicia sesión</h1>
-        <p class="subtitle">Accede al panel privado de costos de importación.</p>
-        <form id="signin-form" class="login-form">
-          <div class="field">
-            <label for="login-email">Correo electrónico</label>
-            <input id="login-email" name="email" type="email" autocomplete="username" required placeholder="tu@correo.com">
-          </div>
-          <div class="field">
-            <label for="login-password">Contraseña</label>
-            <input id="login-password" name="password" type="password" autocomplete="current-password" required minlength="6" placeholder="Tu contraseña">
-          </div>
-          <button class="button primary" id="login-button" type="submit">Entrar al sistema</button>
-        </form>
-        <div id="login-message" class="notice login-notice hidden" role="status"></div>
-        <div id="verification-actions" class="verify-actions hidden">
-          <button id="resend-verification" class="button" type="button">Reenviar verificación</button>
-          <button id="check-verification" class="button" type="button">Ya verifiqué mi correo</button>
-        </div>
-        <p class="login-footnote">Acceso restringido a cuentas autorizadas. No hay registro público.</p>
-      </section>
-    </main>
-
-    <div id="application" class="shell hidden">
+    <div class="shell">
       <aside class="sidebar" aria-label="Navegación principal">
         <div class="brand">
           <div class="brand-mark" aria-hidden="true">I</div>
@@ -288,11 +235,7 @@
       <main class="main">
         <header class="topbar">
           <div class="crumb">Operaciones <span aria-hidden="true">/</span> Importaciones</div>
-          <div class="topbar-right">
-            <span class="date-label" id="today"></span>
-            <span class="account-email" id="account-email"></span>
-            <button class="button" id="logout-button" type="button">Salir</button>
-          </div>
+          <div class="topbar-right"><span class="date-label" id="today"></span><div class="avatar" aria-label="Cuenta">IC</div></div>
         </header>
 
         <div class="content">
@@ -362,14 +305,6 @@
     <script>
       (() => {
         const apiBase = (window.IMPORTACION_API_BASE || "").replace(/\/+$/, "");
-        const firebaseConfig = {
-          apiKey: "AIzaSyACWe97pX9WGVcJOdE5WjKW-W7O9axIzko",
-          authDomain: "arancel593.firebaseapp.com",
-          projectId: "arancel593",
-          appId: "1:246778671399:web:54b94de56379179d677902"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const categories = [
           { key: "totalAereo", label: "Transporte aéreo", icon: "✈" },
           { key: "totalMaritimo", label: "Transporte marítimo", icon: "⌁" },
@@ -395,20 +330,14 @@
           $("#connection-label").textContent = label;
         };
         const requestJson = async (url) => {
-          const user = auth.currentUser;
-          if (!user) throw new Error("Inicia sesión para consultar el sistema.");
-          const token = await user.getIdToken();
-          const response = await fetch(url, {
-            headers: { Accept: "application/json", Authorization: `Bearer ${token}` }
-          });
+          const response = await fetch(url, { headers: { Accept: "application/json" } });
           const contentType = response.headers.get("content-type") || "";
           if (!contentType.toLowerCase().includes("application/json")) {
-            throw new Error(`El backend no está conectado todavía (respuesta HTTP ${response.status}).`);
+            throw new Error(`El backend no est? conectado todav?a (respuesta HTTP ${response.status}).`);
           }
           const body = await response.json();
           if (!response.ok) {
-            if (response.status === 401) await auth.signOut();
-            throw new Error(body.message || `El servicio respondió con código ${response.status}.`);
+            throw new Error(body.message || `El servicio respondi? con c?digo ${response.status}.`);
           }
           return body;
         };
@@ -564,91 +493,7 @@
           }
         });
 
-        $("#signin-form").addEventListener("submit", async (event) => {
-          event.preventDefault();
-          const button = $("#login-button");
-          const message = $("#login-message");
-          const email = $("#login-email").value.trim();
-          const password = $("#login-password").value;
-          message.classList.add("hidden");
-          button.disabled = true;
-          button.textContent = "Verificando…";
-          try {
-            await auth.signInWithEmailAndPassword(email, password);
-          } catch (error) {
-            const messages = {
-              "auth/invalid-credential": "El correo o la contraseña no son correctos.",
-              "auth/invalid-email": "Escribe un correo electrónico válido.",
-              "auth/too-many-requests": "Hubo demasiados intentos. Espera un momento y vuelve a probar.",
-              "auth/network-request-failed": "No se pudo conectar con Firebase Authentication."
-            };
-            setNotice(message, messages[error.code] || "No se pudo iniciar sesión. Revisa tus datos e inténtalo de nuevo.", "error");
-          } finally {
-            button.disabled = false;
-            button.textContent = "Entrar al sistema";
-          }
-        });
-
-        $("#logout-button").addEventListener("click", async () => {
-          try {
-            await auth.signOut();
-          } catch (error) {
-            setNotice($("#api-notice"), "No se pudo cerrar sesión. Recarga la página e inténtalo de nuevo.", "error");
-          }
-        });
-
-        $("#resend-verification").addEventListener("click", async () => {
-          try {
-            const user = auth.currentUser;
-            if (!user) throw new Error("Inicia sesión para solicitar el correo de verificación.");
-            await user.sendEmailVerification();
-            setNotice($("#login-message"), "Enviamos un correo de verificación a tu cuenta.", "success");
-          } catch (error) {
-            setNotice($("#login-message"), error.message || "No se pudo enviar el correo de verificación.", "error");
-          }
-        });
-
-        $("#check-verification").addEventListener("click", async () => {
-          const user = auth.currentUser;
-          if (!user) return;
-          try {
-            await user.reload();
-            await user.getIdToken(true);
-            if (auth.currentUser.emailVerified) {
-              $("#verification-actions").classList.add("hidden");
-              $("#login-message").classList.add("hidden");
-            } else {
-              setNotice($("#login-message"), "El correo todavía aparece sin verificar. Abre el enlace que te enviamos y vuelve a intentar.", "error");
-            }
-          } catch (error) {
-            setNotice($("#login-message"), "No se pudo comprobar la verificación. Revisa tu conexión e inténtalo de nuevo.", "error");
-          }
-        });
-
-        auth.onAuthStateChanged((user) => {
-          const loginScreen = $("#login-screen");
-          const application = $("#application");
-          const verificationActions = $("#verification-actions");
-          if (!user) {
-            application.classList.add("hidden");
-            loginScreen.classList.remove("hidden");
-            verificationActions.classList.add("hidden");
-            return;
-          }
-          if (!user.emailVerified) {
-            application.classList.add("hidden");
-            loginScreen.classList.remove("hidden");
-            verificationActions.classList.remove("hidden");
-            setNotice($("#login-message"), "Verifica el correo de tu cuenta para acceder al sistema.", "error");
-            return;
-          }
-          loginScreen.classList.add("hidden");
-          application.classList.remove("hidden");
-          $("#account-email").textContent = user.email || "";
-          verificationActions.classList.add("hidden");
-          $("#login-message").classList.add("hidden");
-          loadSummary();
-        });
+        loadSummary();
       })();
     </script>
   </body>

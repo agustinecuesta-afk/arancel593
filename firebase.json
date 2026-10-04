@@ -1,9 +1,4 @@
 {
-  "auth": {
-    "providers": {
-      "emailPassword": true
-    }
-  },
   "hosting": {
     "public": "public",
     "ignore": [

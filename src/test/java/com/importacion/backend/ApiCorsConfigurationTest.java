@@ -7,6 +7,7 @@ import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.web.filter.CorsFilter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class ApiCorsConfigurationTest {
@@ -14,14 +15,13 @@ class ApiCorsConfigurationTest {
     private static final String HOSTING_ORIGIN = "https://arancel593.web.app";
 
     @Test
-    void allowsTheFirebaseHostingOriginAndAuthorizationHeader() throws Exception {
+    void allowsPublicGetRequestsFromTheFirebaseHostingOrigin() throws Exception {
         CorsFilter filter = new ApiCorsConfiguration()
                 .apiCorsFilter(HOSTING_ORIGIN)
                 .getFilter();
         MockHttpServletRequest request = new MockHttpServletRequest("OPTIONS", "/api/costos/resumen");
         request.addHeader("Origin", HOSTING_ORIGIN);
         request.addHeader("Access-Control-Request-Method", "GET");
-        request.addHeader("Access-Control-Request-Headers", "authorization");
         MockHttpServletResponse response = new MockHttpServletResponse();
 
         filter.doFilter(request, response, (req, res) -> {
@@ -30,7 +30,8 @@ class ApiCorsConfigurationTest {
 
         assertEquals(200, response.getStatus());
         assertEquals(HOSTING_ORIGIN, response.getHeader("Access-Control-Allow-Origin"));
-        assertTrue(response.getHeader("Access-Control-Allow-Headers").toLowerCase().contains("authorization"));
+        assertTrue(response.getHeader("Access-Control-Allow-Methods").contains("GET"));
+        assertFalse(response.getHeader("Access-Control-Allow-Methods").contains("POST"));
     }
 
     @Test

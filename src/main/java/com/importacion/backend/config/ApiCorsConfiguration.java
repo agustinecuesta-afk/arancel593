@@ -28,8 +28,8 @@ public class ApiCorsConfiguration {
 
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(origins);
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
+        configuration.setAllowedMethods(Arrays.asList("GET", "OPTIONS"));
+        configuration.setAllowedHeaders(Arrays.asList("Content-Type", "Accept"));
         configuration.setAllowCredentials(false);
         configuration.setMaxAge(3600L);
 

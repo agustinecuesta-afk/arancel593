@@ -1,6 +1,10 @@
 # Importa — control de costos
 
-La interfaz ya está publicada en [Firebase Hosting](https://arancel593.web.app/). Firebase Authentication Email/Password está habilitado y la pantalla no ofrece registro público. El API todavía requiere crear un servicio web gratuito y conectarlo a la base PostgreSQL.
+La interfaz ya está publicada en [Firebase Hosting](https://arancel593.web.app/) y no requiere iniciar sesión. El API todavía requiere crear un servicio web gratuito y conectarlo a la base PostgreSQL.
+
+## Acceso público de solo lectura
+
+El sitio y los endpoints GET del API son públicos: cualquiera puede consultar los costos registrados y buscar en el arancel. En producción, el filtro del API responde `405 Method Not Allowed` a todas las solicitudes que no sean GET. No se permite crear, editar ni eliminar registros por Internet. No publiques información de costos que no quieras hacer visible a cualquier persona.
 
 ## Límites gratuitos elegidos
 
@@ -13,19 +17,15 @@ Estas opciones no crean servicios ni cargos desde este repositorio. Referencias 
 ## Preparación única de cuentas
 
 1. En Neon, crea un proyecto gratuito en **AWS US East (Ohio)** (`aws-us-east-2`) y copia sus datos de conexión. Esa región coincide con la definida en `render.yaml`.
-2. En Google Cloud Console del proyecto `arancel593`, crea una cuenta de servicio exclusiva para verificar los ID tokens de Firebase. Descarga su archivo JSON privado. No lo subas a Git ni lo envíes por correo o chat.
-3. En Firebase Console, abre **Authentication → Users → Add user** y crea `agustincuesta1975@gmail.com` con una contraseña segura.
-4. En Render, crea un **Blueprint** desde el repositorio del proyecto y selecciona el plan Free. `autoDeploy` está desactivado: confirma cada despliegue manualmente.
-5. En Render, configura las variables secretas que solicita el Blueprint:
+2. En Render, crea un **Blueprint** desde el repositorio del proyecto y selecciona el plan Free. `autoDeploy` está desactivado: confirma cada despliegue manualmente.
+3. En Render, configura las variables que solicita el Blueprint:
    - `DB_USER`: el rol PostgreSQL de Neon.
    - `DB_PASSWORD`: contraseña de ese rol.
    - `JDBC_DATABASE_URL`: `jdbc:postgresql://<host-neon>/<base>?sslmode=require` (usa el hostname y base que muestra Neon).
-   - `FIREBASE_SERVICE_ACCOUNT_JSON`: contenido completo del JSON privado de la cuenta de servicio, ingresado directamente en Render.
-6. Despliega manualmente el servicio. Prueba `https://<servicio>.onrender.com/actuator/health` y confirma que responde `{"status":"UP"}`.
-7. Copia la URL HTTPS real del servicio en `public/config.js`, por ejemplo `window.IMPORTACION_API_BASE = "https://<servicio>.onrender.com";`. Despliega Hosting: `firebase deploy --only hosting --project arancel593`.
-8. Abre [Firebase Hosting](https://arancel593.web.app/), inicia sesión con la cuenta autorizada y verifica el correo. El API valida el ID token, el correo verificado y la lista permitida.
+4. Despliega manualmente el servicio. Prueba `https://<servicio>.onrender.com/actuator/health` y confirma que responde `{"status":"UP"}`.
+5. Copia la URL HTTPS real del servicio en `public/config.js`, por ejemplo `window.IMPORTACION_API_BASE = "https://<servicio>.onrender.com";`. Despliega Hosting: `firebase deploy --only hosting --project arancel593`.
 
-No compartas ni pegues aquí contraseñas de Neon ni archivos JSON de cuentas de servicio. Si se pierde o filtra una clave privada, revócala y genera otra desde Google Cloud.
+No compartas ni pegues aquí la contraseña de Neon.
 
 ## Desarrollo local
 
@@ -34,4 +34,4 @@ mvnw.cmd test
 mvnw.cmd spring-boot:run
 ```
 
-El perfil local sigue utilizando H2 en memoria y datos de demostración. El filtro Firebase se activa únicamente en el perfil `prod`. Los datos de H2 que ya existían en desarrollo no se migran a Neon; la primera base de producción comenzará vacía.
+El perfil local sigue utilizando H2 en memoria y datos de demostración; sus rutas de escritura solo funcionan localmente. En producción no se cargan datos de demostración y las rutas de escritura se bloquean. Los datos de H2 que ya existían en desarrollo no se migran a Neon; la primera base de producción comenzará vacía.
